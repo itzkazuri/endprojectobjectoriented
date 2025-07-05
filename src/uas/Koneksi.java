@@ -13,7 +13,7 @@ public class Koneksi {
             try {
                 String url = "jdbc:mysql://localhost:3306/db_mahasiswa";
                 String user = "root";
-                String pass = "K@dekjuli(09)"; // ganti kalau MySQL kamu pakai password
+                String pass = ""; // ganti kalau MySQL kamu pakai password
 
                 conn = DriverManager.getConnection(url, user, pass);
                 System.out.println("Koneksi ke database berhasil.");
