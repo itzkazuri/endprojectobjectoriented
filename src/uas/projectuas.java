@@ -14,14 +14,15 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author itzkazuri
  */
+// Kelas utama untuk frame aplikasi, mewarisi dari javax.swing.JFrame
 public class projectuas extends javax.swing.JFrame {
 
     /**
-     * Creates new form projectuas
+     * Konstruktor: method yang pertama kali dijalankan saat objek projectuas dibuat.
      */
     public projectuas() {
-        initComponents();
-        loadData();
+        initComponents(); // Method ini untuk inisialisasi semua komponen GUI (dibuat otomatis oleh NetBeans)
+        loadData();       // Memanggil method loadData() untuk menampilkan data dari database saat aplikasi pertama kali dibuka
     }
 
     /**
@@ -205,18 +206,27 @@ public class projectuas extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_lblnimActionPerformed
 
+    /**
+     * Method ini dipanggil setiap kali ada tombol keyboard yang ditekan di field NIM.
+     * Fungsinya untuk validasi input, hanya memperbolehkan angka yang diketik.
+     */
     private void lblnimKeyTyped(java.awt.event.KeyEvent evt) {
-        char c = evt.getKeyChar();
+        char c = evt.getKeyChar(); // Mendapatkan karakter yang diketik
+        // Mengecek apakah karakter yang diketik bukan digit (angka)
         if (!Character.isDigit(c)) {
-            evt.consume();
+            evt.consume(); // Jika bukan angka, event (pengetikan) akan diabaikan
         }
     }
 
+    /**
+     * Method ini dijalankan ketika tombol "Clear form" diklik.
+     * Fungsinya untuk membersihkan semua input field dan pilihan di form.
+     */
     private void btnclearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnclearActionPerformed
-        lblnim.setText("");
-        lblnama.setText("");
-        jComboBox1.setSelectedIndex(0);
-        tbdatabase.clearSelection();
+        lblnim.setText(""); // Mengosongkan field NIM
+        lblnama.setText(""); // Mengosongkan field Nama
+        jComboBox1.setSelectedIndex(0); // Mengatur pilihan Jurusan kembali ke item pertama
+        tbdatabase.clearSelection(); // Menghapus seleksi pada tabel
     }//GEN-LAST:event_btnclearActionPerformed
 
     private void lblnamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lblnamaActionPerformed
@@ -227,48 +237,63 @@ public class projectuas extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
+    /**
+     * Method ini dijalankan ketika tombol "Tambah" diklik.
+     * Fungsinya untuk menambahkan data mahasiswa baru ke dalam database.
+     */
     private void btntambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntambahActionPerformed
+        // Mengambil data dari input fields
         String nim = lblnim.getText();
         String nama = lblnama.getText();
         String jurusan = (String) jComboBox1.getSelectedItem();
 
-        // Validasi input
+        // Validasi sederhana: memastikan NIM dan Nama tidak kosong
         if (nim.isEmpty() || nama.isEmpty()) {
             JOptionPane.showMessageDialog(this, "NIM dan Nama wajib diisi!");
-            return;
+            return; // Menghentikan eksekusi jika validasi gagal
         }
 
         try {
+            // Menyiapkan query SQL untuk memasukkan data baru
             Connection conn = Koneksi.getConnection();
             String query = "INSERT INTO mahasiswa (nim, nama, jurusan) VALUES (?, ?, ?)";
+            // Menggunakan PreparedStatement untuk keamanan (menghindari SQL Injection)
             java.sql.PreparedStatement ps = conn.prepareStatement(query);
             ps.setString(1, nim);
             ps.setString(2, nama);
             ps.setString(3, jurusan);
-            ps.executeUpdate();
+            ps.executeUpdate(); // Menjalankan query
 
             JOptionPane.showMessageDialog(this, "Data berhasil ditambahkan!");
-            loadData(); // refresh tabel
-            btnclearActionPerformed(evt); // reset form
+            loadData(); // Memuat ulang data di tabel untuk menampilkan data baru
+            btnclearActionPerformed(evt); // Membersihkan form setelah data ditambahkan
 
         } catch (Exception e) {
+            // Menampilkan pesan error jika terjadi kegagalan
             JOptionPane.showMessageDialog(this, "Gagal menambahkan data: " + e.getMessage());
         }
     }//GEN-LAST:event_btntambahActionPerformed
 
+    /**
+     * Method ini dijalankan ketika tombol "Edit" diklik.
+     * Fungsinya untuk memperbarui data mahasiswa yang ada di database.
+     */
     private void btneditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneditActionPerformed
+        // Mengecek apakah ada baris yang dipilih di tabel
         int row = tbdatabase.getSelectedRow();
-        if (row == -1) {
+        if (row == -1) { // Jika tidak ada baris yang dipilih
             JOptionPane.showMessageDialog(this, "Pilih data yang mau diedit dulu di tabel!");
             return;
         }
 
-        String id = tbdatabase.getValueAt(row, 0).toString();
+        // Mengambil data dari baris yang dipilih dan dari input fields
+        String id = tbdatabase.getValueAt(row, 0).toString(); // Mengambil ID dari kolom pertama
         String nim = lblnim.getText();
         String nama = lblnama.getText();
         String jurusan = (String) jComboBox1.getSelectedItem();
 
         try {
+            // Menyiapkan query SQL untuk update data berdasarkan ID
             Connection conn = Koneksi.getConnection();
             String query = "UPDATE mahasiswa SET nim=?, nama=?, jurusan=? WHERE id=?";
             java.sql.PreparedStatement ps = conn.prepareStatement(query);
@@ -276,38 +301,45 @@ public class projectuas extends javax.swing.JFrame {
             ps.setString(2, nama);
             ps.setString(3, jurusan);
             ps.setString(4, id);
-            ps.executeUpdate();
+            ps.executeUpdate(); // Menjalankan query update
 
             JOptionPane.showMessageDialog(this, "Data berhasil diupdate!");
-            loadData();
-            btnclearActionPerformed(evt);
+            loadData(); // Memuat ulang data di tabel
+            btnclearActionPerformed(evt); // Membersihkan form
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal mengedit data: " + e.getMessage());
         }
     }//GEN-LAST:event_btneditActionPerformed
 
+    /**
+     * Method ini dijalankan ketika tombol "Hapus" diklik.
+     * Fungsinya untuk menghapus data mahasiswa dari database.
+     */
     private void btnhapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnhapusActionPerformed
+        // Mengecek apakah ada baris yang dipilih di tabel
         int row = tbdatabase.getSelectedRow();
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Pilih data yang mau dihapus!");
             return;
         }
 
+        // Meminta konfirmasi dari pengguna sebelum menghapus
         int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin mau hapus data ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (konfirmasi == JOptionPane.YES_OPTION) {
-            String id = tbdatabase.getValueAt(row, 0).toString();
+            String id = tbdatabase.getValueAt(row, 0).toString(); // Mengambil ID dari baris yang dipilih
 
             try {
+                // Menyiapkan query SQL untuk menghapus data berdasarkan ID
                 Connection conn = Koneksi.getConnection();
                 String query = "DELETE FROM mahasiswa WHERE id=?";
                 java.sql.PreparedStatement ps = conn.prepareStatement(query);
                 ps.setString(1, id);
-                ps.executeUpdate();
+                ps.executeUpdate(); // Menjalankan query hapus
 
                 JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
-                loadData();
-                btnclearActionPerformed(evt);
+                loadData(); // Memuat ulang data di tabel
+                btnclearActionPerformed(evt); // Membersihkan form
 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage());
@@ -315,32 +347,49 @@ public class projectuas extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnhapusActionPerformed
 
+    /**
+     * Method ini dijalankan ketika salah satu baris di tabel diklik.
+     * Fungsinya untuk menampilkan data dari baris yang dipilih ke dalam form input.
+     */
     private void tbdatabaseMouseClicked(java.awt.event.MouseEvent evt) {
-        int row = tbdatabase.getSelectedRow();
-        if (row != -1) {
+        int row = tbdatabase.getSelectedRow(); // Mendapatkan indeks baris yang diklik
+        if (row != -1) { // Memastikan ada baris yang dipilih
+            // Mengambil data dari setiap kolom di baris yang dipilih
             String nim = tbdatabase.getValueAt(row, 1).toString();
             String nama = tbdatabase.getValueAt(row, 2).toString();
             String jurusan = tbdatabase.getValueAt(row, 3).toString();
 
+            // Menampilkan data tersebut ke komponen form
             lblnim.setText(nim);
             lblnama.setText(nama);
             jComboBox1.setSelectedItem(jurusan);
         }
     }
     
+    /**
+     * Method ini berfungsi untuk memuat (load) semua data dari tabel 'mahasiswa' di database
+     * dan menampilkannya ke dalam komponen JTable (tbdatabase).
+     */
     private void loadData() {
         try {
+            // 1. Membuat koneksi ke database
             Connection conn = Koneksi.getConnection();
+            // 2. Membuat statement untuk menjalankan query
             Statement stmt = conn.createStatement();
+            // 3. Menjalankan query SELECT untuk mengambil semua data dari tabel mahasiswa
             ResultSet rs = stmt.executeQuery("SELECT * FROM mahasiswa");
 
+            // 4. Membuat model tabel default untuk JTable
             DefaultTableModel model = new DefaultTableModel();
+            // 5. Menambahkan kolom-kolom ke model tabel
             model.addColumn("ID");
             model.addColumn("NIM");
             model.addColumn("Nama");
             model.addColumn("Jurusan");
 
+            // 6. Looping untuk membaca setiap baris hasil query
             while (rs.next()) {
+                // 7. Menambahkan baris baru ke model tabel dengan data dari database
                 model.addRow(new Object[]{
                     rs.getInt("id"),
                     rs.getString("nim"),
@@ -348,8 +397,10 @@ public class projectuas extends javax.swing.JFrame {
                     rs.getString("jurusan")
                 });
             }
+            // 8. Mengatur model tabel (yang sudah berisi data) ke komponen JTable
             tbdatabase.setModel(model);
         } catch (Exception e) {
+            // Menampilkan pesan error jika gagal memuat data
             JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
         }
     }
@@ -381,8 +432,10 @@ public class projectuas extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
+        // Menjalankan pembuatan GUI di Event Dispatch Thread (EDT) untuk keamanan thread
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                // Membuat instance dari form projectuas dan menampilkannya
                 new projectuas().setVisible(true);
             }
         });
